@@ -3,8 +3,8 @@ import pytest
 from runner import kapasite, kapsam, runner
 
 
-@pytest.mark.parametrize("hedef", ["192.168.0.15", "192.168.1.1", "10.0.0.1", "172.17.0.1", "100.86.88.1",
-                                   "127.0.0.1", "169.254.1.1", "8.8.8.8", "example.com", "gokalpgoksu.com", "::1"])
+@pytest.mark.parametrize("hedef", ["192.168.0.200", "192.168.1.1", "10.0.0.1", "172.17.0.1", "100.64.0.1",
+                                   "127.0.0.1", "169.254.1.1", "8.8.8.8", "example.com", "example.net", "::1"])
 def test_kapsam_disi_reddedilir(hedef):
     assert not kapsam.hedef_izinli(hedef)
 
