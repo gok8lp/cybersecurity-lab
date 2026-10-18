@@ -1,0 +1,42 @@
+:root { --shell: #08090b; --surface: #14161a; --raised: #202329; --hover: #2b3037; --cizgi: rgba(255,255,255,.11);
+  --birincil: #f5f6f7; --ikincil: #a7abb2; --ucuncul: #878d96; --iyi: #7fd1a0; --uyari: #e2b048; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--shell); color: var(--birincil); font: 15px/1.55 system-ui, sans-serif; }
+.sayfa { max-width: 1120px; margin: 0 auto; padding: 24px 16px 48px; }
+.ust { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+h1 { font-size: 24px; margin: 0; } h2 { font-size: 16px; margin: 0 0 12px; } h3 { font-size: 16px; margin: 8px 0; }
+.soluk { color: var(--ikincil); margin: 0; } small.soluk { display: block; font-size: 12px; }
+.xp { background: var(--surface); border: 1px solid var(--cizgi); border-radius: 999px; padding: 8px 16px; font-weight: 700; }
+.sekmeler { display: flex; gap: 4px; padding: 4px; margin: 20px 0; background: var(--surface); border: 1px solid var(--cizgi); border-radius: 14px; overflow-x: auto; }
+.sekme { flex: 1; min-height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--ikincil); font: inherit; font-weight: 700; cursor: pointer; }
+.sekme:hover { background: var(--hover); color: var(--birincil); } .sekme.secili { background: var(--raised); color: var(--birincil); }
+.izgara { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.ikili { display: grid; grid-template-columns: 280px 1fr; gap: 12px; }
+@media (max-width: 760px) { .ikili { grid-template-columns: 1fr; } }
+.kutu { background: var(--surface); border: 1px solid var(--cizgi); border-radius: 14px; padding: 16px; min-width: 0; }
+.bulmaca.bitti { border-color: rgba(127,209,160,.45); }
+.menu { display: flex; flex-direction: column; gap: 4px; padding: 8px; align-self: start; }
+.menu-oge { display: flex; gap: 10px; align-items: flex-start; text-align: left; min-height: 44px; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--birincil); font: inherit; cursor: pointer; }
+.menu-oge:hover { background: var(--hover); } .menu-oge.secili { background: var(--raised); }
+.sira { display: inline-grid; place-items: center; min-width: 24px; height: 24px; border-radius: 999px; border: 1px solid var(--cizgi); font-size: 12px; color: var(--ikincil); }
+.metin { overflow-wrap: anywhere; } .metin table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+.metin th, .metin td { border: 1px solid var(--cizgi); padding: 6px 8px; text-align: left; }
+.metin pre, .metin code { font-family: ui-monospace, 'JetBrains Mono', monospace; } .metin pre { background: var(--shell); border: 1px solid var(--cizgi); border-radius: 10px; padding: 12px; overflow-x: auto; }
+.metin blockquote { margin: 12px 0; padding: 8px 12px; border-left: 3px solid var(--ikincil); color: var(--ikincil); }
+.satir { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } .satir-sag { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.rozet { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; background: var(--raised); color: var(--ikincil); }
+.rozet.iyi { color: var(--iyi); } .rozet.uyari { color: var(--uyari); }
+.dugme, .secenek, .cip { min-height: 36px; padding: 6px 14px; border: 1px solid var(--cizgi); border-radius: 10px; background: var(--raised); color: var(--birincil); font: inherit; cursor: pointer; }
+.dugme:hover, .secenek:hover, .cip:hover { background: var(--hover); } .dugme.birincil { min-height: 44px; background: var(--birincil); color: var(--shell); font-weight: 700; border-color: transparent; }
+.dugme:disabled, .secenek:disabled { opacity: .5; cursor: default; }
+.secenekler { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; } .secenek { text-align: left; white-space: normal; }
+.cipler { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; } .cip.secili { background: var(--birincil); color: var(--shell); }
+.girdi { flex: 1; min-width: 160px; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--cizgi); background: var(--shell); color: var(--birincil); font: inherit; }
+.ipuclari { margin-top: 10px; } .ipucu { color: var(--ikincil); margin: 6px 0; }
+.iyi-metin { color: var(--iyi); } .uyari-metin { color: var(--uyari); }
+.buyuk { font-size: 28px; font-weight: 800; margin: 0; } .liste { margin: 0; padding-left: 20px; }
+.baglanti { border: 0; background: none; color: var(--birincil); font: inherit; text-decoration: underline; cursor: pointer; min-height: 36px; }
+.cubuk { height: 6px; border-radius: 999px; background: var(--raised); margin-top: 10px; overflow: hidden; } .cubuk span { display: block; height: 100%; background: var(--birincil); }
+.gizli { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+:focus-visible { outline: 2px solid rgba(255,255,255,.7); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
