@@ -1,0 +1,134 @@
+# Bulmaca kaynağı (cevaplar açık): yalnız tools/bulmaca_derle.py ve testler okur. UI content/puzzles.yaml'ı görür.
+- slug: b64-coz
+  kategori: kodlama
+  zorluk: kolay
+  baslik_tr: Base64 çöz
+  soru: "Şu Base64 metni çöz: `Q3liZXIgUmFuZ2U=`"
+  cevap_tipi: metin
+  cevap: Cyber Range
+  ipuclari: ["Sondaki = bir dolgu karakteridir.", "Her 4 Base64 karakteri 3 bayta denk gelir.", "Terminalde base64 -d kullanabilirsin."]
+  aciklama: Base64 kodlamadır, şifreleme değil; anahtarsız geri çevrilir.
+  xp: 30
+- slug: hex-oku
+  kategori: kodlama
+  zorluk: kolay
+  baslik_tr: Onaltılık baytları oku
+  soru: "Bu baytlar ASCII olarak ne yazıyor? `46 4c 55 47 45 4c`"
+  cevap_tipi: metin
+  cevap: FLUGEL
+  ipuclari: ["İki onaltılık hane bir bayttır.", "0x46 büyük F harfidir.", "ASCII tablosuna bak."]
+  aciklama: Paket ve bellek dökümleri onaltılık gösterilir.
+  xp: 30
+- slug: sezar-uc
+  kategori: kodlama
+  zorluk: kolay
+  baslik_tr: Üç harf kaydırma
+  soru: "Her harf alfabede 3 ileri kaydırılmış (A–Z). Asıl metin nedir? `XSGDWH`"
+  cevap_tipi: metin
+  cevap: UPDATE
+  ipuclari: ["Her harfi 3 geri kaydır.", "X harfi U olur.", "Bir yazılımı yenilemek anlamında bir kelime."]
+  aciklama: Sezar şifresinin yalnız 25 anahtarı vardır; bu yüzden güvensizdir.
+  xp: 40
+- slug: ozet-uzunluk
+  kategori: ozet
+  zorluk: kolay
+  baslik_tr: Hangi özet algoritması?
+  soru: "Uzunluğuna bakarak seç (onaltılık 40 hane): `da39a3ee5e6b4b0d3255bfef95601890afd80709`"
+  cevap_tipi: secim
+  secenekler: [MD5, SHA-1, SHA-256, bcrypt]
+  cevap: SHA-1
+  ipuclari: ["Haneleri say.", "40 hane = 160 bit.", "MD5 32, SHA-256 64 hanedir."]
+  aciklama: SHA-1 artık çakışmalara karşı güvenli sayılmaz; yeni sistemlerde SHA-256 ve üstü kullanılır.
+  xp: 40
+- slug: parola-saklama
+  kategori: ozet
+  zorluk: orta
+  baslik_tr: Parola nasıl saklanmalı?
+  soru: "Kullanıcı parolalarını veritabanında saklamanın en uygun yolu hangisi?"
+  cevap_tipi: secim
+  secenekler: [Base64 ile kodlamak, AES ile şifrelemek, Tuzsuz SHA-256 özeti, bcrypt veya Argon2 ile tuzlu özet]
+  cevap: bcrypt veya Argon2 ile tuzlu özet
+  ipuclari: ["Parolayı geri çevirebilmen gerekmez.", "Özet yavaş olmalı.", "Her parolaya ayrı tuz eklenmeli."]
+  aciklama: Yavaş ve tuzlu özetler, sızan veritabanında parolaların toplu kırılmasını zorlaştırır.
+  xp: 60
+- slug: izin-oku
+  kategori: izinler
+  zorluk: kolay
+  baslik_tr: Bu dosyayı kim okuyabilir?
+  soru: "`-rw-r--r-- 1 app app 512 yedek.tar` — dosyayı kimler okuyabilir?"
+  cevap_tipi: secim
+  secenekler: [Yalnız app kullanıcısı, app kullanıcısı ve app grubu, Sistemdeki herkes, Hiç kimse]
+  cevap: Sistemdeki herkes
+  ipuclari: ["Son üçlü 'diğerleri' içindir.", "r okuma iznidir.", "Diğerlerinde r var."]
+  aciklama: Yedekler gibi hassas dosyalar 600 ya da 640 olmalıdır.
+  xp: 30
+- slug: izin-sayi
+  kategori: izinler
+  zorluk: kolay
+  baslik_tr: Doğru izin sayısı
+  soru: "Yalnız sahibinin okuyup yazabileceği bir anahtar dosyası için chmod sayısı nedir?"
+  cevap_tipi: metin
+  cevap: "600"
+  ipuclari: ["r=4, w=2, x=1.", "Sahip için okuma+yazma 6 eder.", "Grup ve diğerleri için 0."]
+  aciklama: SSH özel anahtarları gibi dosyalar 600 olmalıdır; aksi halde birçok program dosyayı reddeder.
+  xp: 30
+- slug: sunucu-basligi
+  kategori: http
+  zorluk: kolay
+  baslik_tr: Hangi başlık bilgi sızdırıyor?
+  soru: |
+    Yanıt başlıklarından hangisi saldırgana yazılım sürümünü söylüyor?
+
+        Content-Type: text/html
+        Server: ornek/1.2.3
+        Cache-Control: no-store
+  cevap_tipi: secim
+  secenekler: [Content-Type, Server, Cache-Control]
+  cevap: Server
+  ipuclari: ["Sürüm numarası arayan bir başlık.", "Değerinde 1.2.3 geçiyor.", "Web sunucusunun adını söyler."]
+  aciklama: Sürüm bilgisini göstermemek, bilinen açıkların hedeflenmesini zorlaştırır.
+  xp: 30
+- slug: cerez-isaret
+  kategori: http
+  zorluk: orta
+  baslik_tr: Çerezi betiklerden koru
+  soru: "Oturum çerezini sayfadaki JavaScript'in okuyamaması için hangi işaret eklenir?"
+  cevap_tipi: secim
+  secenekler: [Secure, HttpOnly, SameSite, Path]
+  cevap: HttpOnly
+  ipuclari: ["Yalnız HTTP ile taşınsın.", "document.cookie ile görünmesin.", "Adı 'yalnız HTTP' anlamına gelir."]
+  aciklama: HttpOnly, sayfaya sızan bir betiğin oturum çerezini çalmasını zorlaştırır.
+  xp: 40
+- slug: guvenli-sorgu
+  kategori: guvenli-kod
+  zorluk: orta
+  baslik_tr: Hangisi güvenli sorgu?
+  soru: "Kullanıcıdan gelen `ad` değeriyle veritabanı sorgusu yapan hangi Python satırı güvenlidir?"
+  cevap_tipi: secim
+  secenekler: ["cur.execute(\"SELECT * FROM uye WHERE ad = '\" + ad + \"'\")", "cur.execute(f\"SELECT * FROM uye WHERE ad = '{ad}'\")", "cur.execute(\"SELECT * FROM uye WHERE ad = ?\", (ad,))"]
+  cevap: "cur.execute(\"SELECT * FROM uye WHERE ad = ?\", (ad,))"
+  ipuclari: ["Kullanıcı girdisi sorgu metnine yapıştırılmamalı.", "Yer tutucu kullanan seçeneği ara.", "Parametreli sorgu."]
+  aciklama: Parametreli sorgular girdiyi veri olarak taşır; metin birleştirmek SQL enjeksiyonuna yol açar.
+  xp: 60
+- slug: tampon-sinir
+  kategori: guvenli-kod
+  zorluk: orta
+  baslik_tr: Taşmayan kopya
+  soru: "`char ad[16];` dizisine kullanıcı girdisi kopyalamak için hangisi sınırı aşmaz?"
+  cevap_tipi: secim
+  secenekler: ["strcpy(ad, girdi);", "snprintf(ad, sizeof ad, \"%s\", girdi);", "sprintf(ad, girdi);"]
+  cevap: "snprintf(ad, sizeof ad, \"%s\", girdi);"
+  ipuclari: ["Hedef boyutunu bilen fonksiyonu seç.", "sizeof ad bir sınırdır.", "Biçim dizgesi sabit olmalı."]
+  aciklama: snprintf hedef boyutuna uyar ve biçim dizgesini sabit tutar; strcpy sınır bilmez, sprintf(ad, girdi) ayrıca biçim dizgesi hatası taşır.
+  xp: 70
+- slug: yetki-kontrol
+  kategori: guvenli-kod
+  zorluk: orta
+  baslik_tr: Yetki nerede kontrol edilmeli?
+  soru: "Bir kullanıcının başka birinin faturasını görmesini engellemek için kontrol nerede yapılmalı?"
+  cevap_tipi: secim
+  secenekler: [Yalnız tarayıcıda düğmeyi gizleyerek, Sunucuda her istekte fatura sahibini doğrulayarak, URL'deki kimliği uzun ve rastgele yaparak]
+  cevap: Sunucuda her istekte fatura sahibini doğrulayarak
+  ipuclari: ["İstemci tarafı kontroller atlanabilir.", "Rastgele kimlik gizler ama yetki vermez.", "Sunucu her istekte sahipliği sormalı."]
+  aciklama: Erişim kontrolü yalnız sunucuda güvenilirdir; istemci her şeyi değiştirebilir.
+  xp: 60

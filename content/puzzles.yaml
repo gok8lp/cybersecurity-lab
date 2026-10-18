@@ -1,0 +1,215 @@
+# Üretildi: tools/bulmaca_derle.py — elle düzenleme; kaynak tests/bulmaca_kaynak.yaml
+- slug: b64-coz
+  kategori: kodlama
+  zorluk: kolay
+  baslik_tr: Base64 çöz
+  soru: 'Şu Base64 metni çöz: `Q3liZXIgUmFuZ2U=`'
+  cevap_tipi: metin
+  ipuclari:
+  - Sondaki = bir dolgu karakteridir.
+  - Her 4 Base64 karakteri 3 bayta denk gelir.
+  - Terminalde base64 -d kullanabilirsin.
+  aciklama: Base64 kodlamadır, şifreleme değil; anahtarsız geri çevrilir.
+  xp: 30
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: ad5df4491fa45c58b479cfc68581ee7251d3b3956fd522df29bc55cae4d7b901
+- slug: hex-oku
+  kategori: kodlama
+  zorluk: kolay
+  baslik_tr: Onaltılık baytları oku
+  soru: Bu baytlar ASCII olarak ne yazıyor? `46 4c 55 47 45 4c`
+  cevap_tipi: metin
+  ipuclari:
+  - İki onaltılık hane bir bayttır.
+  - 0x46 büyük F harfidir.
+  - ASCII tablosuna bak.
+  aciklama: Paket ve bellek dökümleri onaltılık gösterilir.
+  xp: 30
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 918bf57088cde068a8c0d906e03f179548ac85efe256cadf76b46ab43ea454bd
+- slug: sezar-uc
+  kategori: kodlama
+  zorluk: kolay
+  baslik_tr: Üç harf kaydırma
+  soru: Her harf alfabede 3 ileri kaydırılmış (A–Z). Asıl metin nedir? `XSGDWH`
+  cevap_tipi: metin
+  ipuclari:
+  - Her harfi 3 geri kaydır.
+  - X harfi U olur.
+  - Bir yazılımı yenilemek anlamında bir kelime.
+  aciklama: Sezar şifresinin yalnız 25 anahtarı vardır; bu yüzden güvensizdir.
+  xp: 40
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 2937013f2181810606b2a799b05bda2849f3e369a20982a4138f0e0a55984ce4
+- slug: ozet-uzunluk
+  kategori: ozet
+  zorluk: kolay
+  baslik_tr: Hangi özet algoritması?
+  soru: 'Uzunluğuna bakarak seç (onaltılık 40 hane): `da39a3ee5e6b4b0d3255bfef95601890afd80709`'
+  cevap_tipi: secim
+  secenekler:
+  - MD5
+  - SHA-1
+  - SHA-256
+  - bcrypt
+  ipuclari:
+  - Haneleri say.
+  - 40 hane = 160 bit.
+  - MD5 32, SHA-256 64 hanedir.
+  aciklama: SHA-1 artık çakışmalara karşı güvenli sayılmaz; yeni sistemlerde SHA-256
+    ve üstü kullanılır.
+  xp: 40
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 5756e6c781c0e5edf659583469fd3709d4f3acc11507f683f3c2a9ebb25d3b7d
+- slug: parola-saklama
+  kategori: ozet
+  zorluk: orta
+  baslik_tr: Parola nasıl saklanmalı?
+  soru: Kullanıcı parolalarını veritabanında saklamanın en uygun yolu hangisi?
+  cevap_tipi: secim
+  secenekler:
+  - Base64 ile kodlamak
+  - AES ile şifrelemek
+  - Tuzsuz SHA-256 özeti
+  - bcrypt veya Argon2 ile tuzlu özet
+  ipuclari:
+  - Parolayı geri çevirebilmen gerekmez.
+  - Özet yavaş olmalı.
+  - Her parolaya ayrı tuz eklenmeli.
+  aciklama: Yavaş ve tuzlu özetler, sızan veritabanında parolaların toplu kırılmasını
+    zorlaştırır.
+  xp: 60
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 681ccf41585423cdf7e3265776baa307f37ad4b00ecdf46a7365018f391ee5ed
+- slug: izin-oku
+  kategori: izinler
+  zorluk: kolay
+  baslik_tr: Bu dosyayı kim okuyabilir?
+  soru: '`-rw-r--r-- 1 app app 512 yedek.tar` — dosyayı kimler okuyabilir?'
+  cevap_tipi: secim
+  secenekler:
+  - Yalnız app kullanıcısı
+  - app kullanıcısı ve app grubu
+  - Sistemdeki herkes
+  - Hiç kimse
+  ipuclari:
+  - Son üçlü 'diğerleri' içindir.
+  - r okuma iznidir.
+  - Diğerlerinde r var.
+  aciklama: Yedekler gibi hassas dosyalar 600 ya da 640 olmalıdır.
+  xp: 30
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 094534885962ae085f8d2f05446b727a0148ba6e35bab802e50b730ece2ffef8
+- slug: izin-sayi
+  kategori: izinler
+  zorluk: kolay
+  baslik_tr: Doğru izin sayısı
+  soru: Yalnız sahibinin okuyup yazabileceği bir anahtar dosyası için chmod sayısı
+    nedir?
+  cevap_tipi: metin
+  ipuclari:
+  - r=4, w=2, x=1.
+  - Sahip için okuma+yazma 6 eder.
+  - Grup ve diğerleri için 0.
+  aciklama: SSH özel anahtarları gibi dosyalar 600 olmalıdır; aksi halde birçok program
+    dosyayı reddeder.
+  xp: 30
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 284b7e6d788f363f910f7beb1910473e23ce9d6c871f1ce0f31f22a982d48ad4
+- slug: sunucu-basligi
+  kategori: http
+  zorluk: kolay
+  baslik_tr: Hangi başlık bilgi sızdırıyor?
+  soru: "Yanıt başlıklarından hangisi saldırgana yazılım sürümünü söylüyor?\n\n  \
+    \  Content-Type: text/html\n    Server: ornek/1.2.3\n    Cache-Control: no-store\n"
+  cevap_tipi: secim
+  secenekler:
+  - Content-Type
+  - Server
+  - Cache-Control
+  ipuclari:
+  - Sürüm numarası arayan bir başlık.
+  - Değerinde 1.2.3 geçiyor.
+  - Web sunucusunun adını söyler.
+  aciklama: Sürüm bilgisini göstermemek, bilinen açıkların hedeflenmesini zorlaştırır.
+  xp: 30
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: b3eacd33433b31b5252351032c9b3e7a2e7aa7738d5decdf0dd6c62680853c06
+- slug: cerez-isaret
+  kategori: http
+  zorluk: orta
+  baslik_tr: Çerezi betiklerden koru
+  soru: Oturum çerezini sayfadaki JavaScript'in okuyamaması için hangi işaret eklenir?
+  cevap_tipi: secim
+  secenekler:
+  - Secure
+  - HttpOnly
+  - SameSite
+  - Path
+  ipuclari:
+  - Yalnız HTTP ile taşınsın.
+  - document.cookie ile görünmesin.
+  - Adı 'yalnız HTTP' anlamına gelir.
+  aciklama: HttpOnly, sayfaya sızan bir betiğin oturum çerezini çalmasını zorlaştırır.
+  xp: 40
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 33d8ce420e65b03cd89a4de87decd82e0c0358e10e96a31738ee16f0c41059b6
+- slug: guvenli-sorgu
+  kategori: guvenli-kod
+  zorluk: orta
+  baslik_tr: Hangisi güvenli sorgu?
+  soru: Kullanıcıdan gelen `ad` değeriyle veritabanı sorgusu yapan hangi Python satırı
+    güvenlidir?
+  cevap_tipi: secim
+  secenekler:
+  - cur.execute("SELECT * FROM uye WHERE ad = '" + ad + "'")
+  - cur.execute(f"SELECT * FROM uye WHERE ad = '{ad}'")
+  - cur.execute("SELECT * FROM uye WHERE ad = ?", (ad,))
+  ipuclari:
+  - Kullanıcı girdisi sorgu metnine yapıştırılmamalı.
+  - Yer tutucu kullanan seçeneği ara.
+  - Parametreli sorgu.
+  aciklama: Parametreli sorgular girdiyi veri olarak taşır; metin birleştirmek SQL
+    enjeksiyonuna yol açar.
+  xp: 60
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 204618f987fac596e6fede4b7c1061fc18c52d47ad9c2a0b5e6310949c059075
+- slug: tampon-sinir
+  kategori: guvenli-kod
+  zorluk: orta
+  baslik_tr: Taşmayan kopya
+  soru: '`char ad[16];` dizisine kullanıcı girdisi kopyalamak için hangisi sınırı
+    aşmaz?'
+  cevap_tipi: secim
+  secenekler:
+  - strcpy(ad, girdi);
+  - snprintf(ad, sizeof ad, "%s", girdi);
+  - sprintf(ad, girdi);
+  ipuclari:
+  - Hedef boyutunu bilen fonksiyonu seç.
+  - sizeof ad bir sınırdır.
+  - Biçim dizgesi sabit olmalı.
+  aciklama: snprintf hedef boyutuna uyar ve biçim dizgesini sabit tutar; strcpy sınır
+    bilmez, sprintf(ad, girdi) ayrıca biçim dizgesi hatası taşır.
+  xp: 70
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 69ea9436892581c55874e9b8eb7e5c78f4028cf9386df5f939baab107989b154
+- slug: yetki-kontrol
+  kategori: guvenli-kod
+  zorluk: orta
+  baslik_tr: Yetki nerede kontrol edilmeli?
+  soru: Bir kullanıcının başka birinin faturasını görmesini engellemek için kontrol
+    nerede yapılmalı?
+  cevap_tipi: secim
+  secenekler:
+  - Yalnız tarayıcıda düğmeyi gizleyerek
+  - Sunucuda her istekte fatura sahibini doğrulayarak
+  - URL'deki kimliği uzun ve rastgele yaparak
+  ipuclari:
+  - İstemci tarafı kontroller atlanabilir.
+  - Rastgele kimlik gizler ama yetki vermez.
+  - Sunucu her istekte sahipliği sormalı.
+  aciklama: Erişim kontrolü yalnız sunucuda güvenilirdir; istemci her şeyi değiştirebilir.
+  xp: 60
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 6186d6f6daaebb83d1e2449cb85ba1fbbf6edb88321fbf8fde098ed5701e014c
