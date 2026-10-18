@@ -213,3 +213,116 @@
   xp: 60
   normalize: kucuk-bosluksuz
   cevap_ozeti: 6186d6f6daaebb83d1e2449cb85ba1fbbf6edb88321fbf8fde098ed5701e014c
+- slug: hiz-siniri-nginx
+  kategori: dayaniklilik
+  zorluk: orta
+  baslik_tr: Hangi ayar ucu korur?
+  soru: 'Bir giriş ucunu tek IP''nin boğmasına karşı korumak için hangi nginx yönergesi
+    uygundur?
+
+    '
+  cevap_tipi: secim
+  secenekler:
+  - limit_req_zone ve limit_req
+  - gzip on
+  - proxy_buffering off
+  - add_header X-Frame-Options DENY
+  ipuclari:
+  - İstek hızını sınırlayan bir yönerge arıyorsun.
+  - Adında 'req' (istek) geçiyor.
+  - Bir bölge tanımlar, sonra o bölgeyle sınır uygular.
+  aciklama: limit_req_zone bir sayaç bölgesi tanımlar, limit_req o bölgeyle IP başına
+    istek hızını sınırlar. Diğerleri sıkıştırma, arabellek ve çerçeveleme ayarlarıdır;
+    kullanılabilirliği korumaz.
+  xp: 70
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 436c392704ed680da3355184c8a8696caf3f52cfb76dfe7e3c2810b054521dc7
+- slug: log-patlamasi
+  kategori: log
+  zorluk: orta
+  baslik_tr: Ani istek patlaması
+  soru: "Erişim log'u özetinde tek bir saniyedeki istek sayıları var. Hangi IP uygulama\
+    \ katmanı taşkını yapıyor?\n\n    12:00:01  203.0.113.7    4 istek\n    12:00:01\
+    \  203.0.113.9    3 istek\n    12:00:01  198.51.100.22  altı yüz istek\n    12:00:01\
+    \  203.0.113.7    5 istek\n"
+  cevap_tipi: metin
+  ipuclari:
+  - Normal kullanıcılar saniyede birkaç istek yapar.
+  - Bir satır diğerlerinden çok farklı.
+  - Altı yüz istek olağan dışıdır.
+  aciklama: Saniyede yüzlerce istek yapan tek IP, hız sınırı ve geçici engelleme için
+    güçlü bir adaydır. Örnek adresler RFC 5737'dendir; gerçek değildir.
+  xp: 60
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: ddc86d3d207a5e00e6db4437da023bfc2d069e31ed440addd0206503d1405625
+- slug: syn-yarim-acik
+  kategori: dayaniklilik
+  zorluk: orta
+  baslik_tr: Yarım açık bağlantılar
+  soru: 'Bağlantı tablosunu dolduran yarım açık (SYN) taşmasına karşı çekirdek düzeyinde
+    hangi savunma kullanılır?
+
+    '
+  cevap_tipi: secim
+  secenekler:
+  - SYN cookie
+  - HTTP yönlendirme
+  - DNS önbelleği
+  - Çerez şifreleme
+  ipuclari:
+  - TCP el sıkışmasının ilk adımıyla ilgili.
+  - Durum tutmadan bağlantıyı doğrular.
+  - Adında 'SYN' geçer.
+  aciklama: SYN cookie, sunucunun yarım açık bağlantı için bellekte durum tutmadan
+    el sıkışmayı sürdürmesini sağlar; böylece tablo taşması etkisiz kalır.
+  xp: 70
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 3a999f634f481037f1bbd8345e0e51f4667407ff7aa74186fbc7c57821bc2829
+- slug: amplifikasyon
+  kategori: dayaniklilik
+  zorluk: zor
+  baslik_tr: Neden amplifikasyon tehlikeli?
+  soru: 'Bazı UDP servisleri (kötü yapılandırılmış DNS/NTP) küçük bir isteğe çok büyük
+    yanıt döner. Bu neden savunan için tehlikelidir?
+
+    '
+  cevap_tipi: secim
+  secenekler:
+  - Saldırgan küçük trafikle büyük yansıtılmış yük üretebilir
+  - Yanıtlar şifrelenemez
+  - Sunucu otomatik kapanır
+  - Loglar silinir
+  ipuclari:
+  - Küçük istek, büyük yanıt oranına odaklan.
+  - Yanıt kurbanın adresine yönlendirilebilir.
+  - Az kaynakla çok yük 'amplifikasyon'dur.
+  aciklama: Açık UDP servisleri yansıtma/amplifikasyonda kötüye kullanılabilir. Savunma
+    — bu servisleri internete kapatmak, kaynak adres doğrulaması (BCP 38) ve hız sınırı.
+    Burada yalnız kavram öğretilir.
+  xp: 90
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 12dab3b48b9f7d19fb9ab4a795d4fab1044c80103d7d9cccb2e5624e4ed36879
+- slug: fail-open-closed
+  kategori: dayaniklilik
+  zorluk: orta
+  baslik_tr: Kalkan çökerse ne olmalı?
+  soru: 'Bir ödeme onay servisinin önündeki güvenlik denetimi çökerse, sistem güvenli
+    tarafta kalmak için ne yapmalı?
+
+    '
+  cevap_tipi: secim
+  secenekler:
+  - İstekleri reddetmeli (fail closed)
+  - Tüm istekleri geçirmeli (fail open)
+  - Logları kapatmalı
+  - Parolaları sıfırlamalı
+  ipuclari:
+  - Ödeme hassas bir işlemdir.
+  - Şüphede güvenli olan hangisi?
+  - Erişime izin vermek mi, kesmek mi daha güvenli?
+  aciklama: Hassas işlemlerde denetim çökerse sistem kapanmalıdır (fail closed). Bir
+    blog sayfası ise erişilebilir kalabilir (fail open). Bu karar hizmetin kritikliğine
+    göre bilinçli verilir.
+  xp: 70
+  normalize: kucuk-bosluksuz
+  cevap_ozeti: 02e9149009dfdb885e48bcc506c6244250bcc6ab76cc87ad7dd2333511e41b78

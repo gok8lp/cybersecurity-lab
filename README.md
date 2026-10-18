@@ -20,8 +20,8 @@ Kişisel siber güvenlik eğitim laboratuvarı: **öğretici dersler**, **taray�
 
 | Bölüm | İçerik |
 |---|---|
-| Öğretici | 5 ders: Başlarken, Kapsam ve etik, Linux izinleri, Kodlama/şifreleme/özet, HTTP ve güvenlik başlıkları |
-| Bulmacalar | 12 bulmaca, 5 kategori: kodlama, özet (hash), dosya izinleri, HTTP, güvenli kod |
+| Öğretici | 6 ders: Başlarken, Kapsam ve etik, Linux izinleri, Kodlama/şifreleme/özet, HTTP ve güvenlik başlıkları, Kullanılabilirlik ve DoS (savunma) |
+| Bulmacalar | 17 bulmaca, 7 kategori: kodlama, özet (hash), dosya izinleri, HTTP, güvenli kod, dayanıklılık (DoS savunması), log |
 | Lablar | `linux-permission-leak` (fazla izinli yedek: saldırı + savunma), `scope-guard` (kapsam koruması) |
 | Puan | XP, tamamlanan bulmacalar; ipucu kademeleri (2. ipucu −%10, 3. ipucu −%25) |
 
@@ -134,7 +134,7 @@ izin listesi, argv), güvenlik politikası (yasaklı ayarlar, lab sertleştirme)
 |---|---|
 | 0 Keşif | tamam |
 | 1 Güvenli iskelet | tamam |
-| 2 İçerik ve puan motoru (12 ders, aralıklı tekrar) | kısmen: 5 ders, 12 bulmaca |
+| 2 İçerik ve puan motoru | kısmen: 6 ders, 17 bulmaca |
 | 3 Runner (Unix soket servisi, 20 döngü testi) | iskelet |
 | 4 İlk dört görev | 1/4 (`linux-permission-leak` dosyaları hazır, sunucuda denenmedi) |
 | 5 C/C++ yolu | bekliyor |
