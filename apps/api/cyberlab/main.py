@@ -1,4 +1,4 @@
-"""FLUGEL Cyber Range API (FastAPI). Docker'a dokunmaz; laboratuvar işleri runner'a devredilir."""
+"""Siber Güvenlik Laboratuvarı API (FastAPI). Docker'a dokunmaz; laboratuvar işleri runner'a devredilir."""
 from __future__ import annotations
 
 import os
@@ -43,7 +43,7 @@ def uygulama(db_url: str | None = None, runner=None) -> FastAPI:
     challengelar = content.challenge_yukle()
     dersler = content.ders_yukle()
     bulmacalar = puzzles.yukle()
-    app = FastAPI(title="FLUGEL Cyber Range")
+    app = FastAPI(title="Siber Güvenlik Laboratuvarı")
 
     def db():
         with Session(motor) as s:

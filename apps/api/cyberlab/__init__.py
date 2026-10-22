@@ -1,1 +1,1 @@
-"""FLUGEL Cyber Range API."""
+"""Siber Güvenlik Laboratuvarı API."""

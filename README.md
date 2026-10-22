@@ -1,9 +1,10 @@
-# FLUGEL Cyber Range
+# Siber Güvenlik Laboratuvarı
 
 Kişisel siber güvenlik eğitim laboratuvarı: **öğretici dersler**, **tarayıcıda çözülen bulmacalar** ve
 **tek kullanımlık, internete kapalı lab görevleri**. Her saldırı görevinin eşlenmiş bir savunma görevi vardır.
 
-> Durum: Faz 1 (güvenli iskelet) tamam. Yerelde çalışıyor; sunucuya henüz kurulmadı.
+> Durum: geliştirme prototipi. Dersler, bulmacalar ve API kodu bulunur; Docker runner ve sunucu kurulumu ayrı doğrulama gerektirir.
+> English: a personal cybersecurity learning lab built with FastAPI, React and isolated container exercises.
 
 ## İçindekiler
 
@@ -27,10 +28,11 @@ Kişisel siber güvenlik eğitim laboratuvarı: **öğretici dersler**, **taray�
 
 ## Hızlı başlangıç (yerel)
 
-Gereken: Python 3.12+, Node 20+. Lab konteynerleri için Docker (bu PC'de yok; sunucuda var).
+Gereken: Python 3.12+, Node 20+. Lab konteynerlerini çalıştırmak için ayrıca Docker gerekir.
 
 ```bash
-cd ~/Projects/flugel-cyber-lab
+git clone https://github.com/gok8lp/cybersecurity-lab.git
+cd cybersecurity-lab
 python3 -m venv .venv
 .venv/bin/pip install fastapi==0.115.6 uvicorn==0.34.0 sqlmodel==0.0.22 pyyaml==6.0.2 pytest==8.3.4 httpx==0.28.1
 ```

@@ -48,7 +48,7 @@ def test_lab_sertlestirme(yol):
 
 def test_haftalik_gorev_dizinleri_kapsam_disi():
     for yol in KOK.rglob("*"):
-        if ".venv" in yol.parts or "node_modules" in yol.parts or yol.is_dir() or yol.suffix in {".png", ".db", ".md"}:
+        if any(part in {".venv", "node_modules", "__pycache__", ".pytest_cache", ".git"} for part in yol.parts) or yol.is_dir() or yol.suffix in {".png", ".db", ".md"}:
             continue
         if yol.name == "test_guvenlik_politikasi.py":
             continue

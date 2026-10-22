@@ -8,7 +8,7 @@ prerequisites: []
 ---
 # Hoş geldin
 
-FLUGEL Cyber Range, siber güvenliği **saldırı ve savunmayı birlikte** yaparak öğrenmen için kurulmuş kişisel bir laboratuvardır.
+Siber Güvenlik Laboratuvarı, siber güvenliği **saldırı ve savunmayı birlikte** yaparak öğrenmen için kurulmuş kişisel bir laboratuvardır.
 
 ## Her dersin beş adımı
 

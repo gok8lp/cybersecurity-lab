@@ -16,7 +16,7 @@ export function Uygulama() {
   return (
     <div className="sayfa">
       <header className="ust">
-        <div><h1>FLUGEL Cyber Range</h1><p className="soluk">Saldırıyı ve savunmayı birlikte öğren</p></div>
+        <div><h1>Siber Güvenlik Laboratuvarı</h1><p className="soluk">Saldırıyı ve savunmayı birlikte öğren</p></div>
         <div className="xp" aria-label={`${ilerleme.xp} XP`}>{ilerleme.xp} XP</div>
       </header>
       <nav className="sekmeler" aria-label="Bölümler">
