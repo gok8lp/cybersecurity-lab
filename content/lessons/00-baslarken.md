@@ -24,12 +24,12 @@ Flag bulmak dersin yarısıdır; savunma geçmeden modül tamamlanmış sayılma
 
 - **Dersler** konuyu anlatır, sonunda kısa bir kontrol sorusu vardır.
 - **Bulmacalar** lab açmadan tarayıcıda çözülür: kodlama, özet (hash), dosya izinleri, HTTP ve güvenli kod okuma.
-- **Lab görevleri** gerçek bir terminalde, internete ve ev ağına kapalı bir konteynerde yapılır.
+- **Lab görevleri** sınırlandırılmış bir eğitim konsolunda, internete ve ev ağına kapalı bir konteynerde yapılır.
 
 ## Puan
 
-- Ders kontrolü 50 XP, bulmacalar 30–80 XP, lab görevleri 100–350 XP.
+- Ders kontrolü 50 XP, bulmacalar 30–80 XP, lab görevleri 100–900 XP.
 - İpuçları serbesttir; ikinci ipucu puandan %10, üçüncüsü %25 düşer.
-- Saldırı (kırmızı) ve savunma (mavi) puanların ayrı tutulur.
+- Lab puanı yalnız kanıt ve savunma doğrulaması birlikte geçince verilir.
 
 Sıradaki ders: **Kapsam ve etik**.

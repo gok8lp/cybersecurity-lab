@@ -10,3 +10,7 @@ apps/web/dist/
 .env
 secrets/
 runner/run/
+*.tsbuildinfo
+.pytest_cache/
+*.tar.gz
+*.log

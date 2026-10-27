@@ -1,0 +1,45 @@
+services:
+  target:
+    build: ../shared
+    image: flugel-cyberlab/exercises:1.0
+    user: 1000:1000
+    read_only: true
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    tmpfs:
+    - /tmp:uid=1000,gid=1000,mode=1777,size=32m,exec
+    environment:
+      CYBERLAB_FLAG: ${CYBERLAB_FLAG:-unused}
+      CYBERLAB_CHALLENGE: c-stack-boundary
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 64
+    networks:
+    - labnet
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/',timeout=1)
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    labels:
+      com.flugel.cyberlab.managed: 'true'
+      com.flugel.cyberlab.challenge: c-stack-boundary
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: '1'
+networks:
+  labnet:
+    internal: true
+    ipam:
+      config:
+      - subnet: ${CYBERLAB_SUBNET:-10.213.0.0/28}
+    labels:
+      com.flugel.cyberlab.managed: 'true'

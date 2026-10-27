@@ -4,6 +4,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from sqlmodel import Field, SQLModel
+from sqlalchemy import UniqueConstraint
 
 
 def simdi() -> datetime:
@@ -35,8 +36,29 @@ class Attempt(SQLModel, table=True):
 
 
 class Progress(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint('user_id', 'slug'),)
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id")
     slug: str
     status: str = "basladi"  # basladi|saldiri-tamam|tamam
     completed_at: datetime | None = None
+
+class Hint(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint('user_id', 'slug'),)
+    id: int | None = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key='user.id')
+    slug: str
+    count: int = 0
+
+class Activity(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint('user_id', 'day'),)
+    id: int | None = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key='user.id')
+    day: str
+
+class Audit(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    action: str
+    subject: str
+    result: str
+    created_at: datetime = Field(default_factory=simdi)

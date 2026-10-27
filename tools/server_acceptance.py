@@ -1,0 +1,59 @@
+"""Run on the deployment host. A temporary API database isolates acceptance XP from real progress."""
+import os
+import re
+import tempfile
+from pathlib import Path
+from fastapi.testclient import TestClient
+from cyberlab.service import uygulama
+from cyberlab.broker import Broker
+from runner import runner
+
+PROBES={'scope-guard':'probe 192.0.2.10','object-ownership':'probe 2','sqlite-parameter':'''probe "' OR 1=1 --"''',
+        'auth-log-hunt':'probe req-42','final-incident':'''probe "' OR 1=1 --"'''}
+PATCH={'scope-guard':'allowlist','linux-permission-leak':'600','path-shadow':'absolute-path','service-map':'close-debug',
+       'http-info-leak':'no-debug','object-ownership':'owner-check','sqlite-parameter':'parameterized','auth-log-hunt':'correlation',
+       'c-stack-boundary':'bounded','c-format-string':'fixed-format','cpp-raii-leak':'raii','container-least-privilege':'least-privilege','final-incident':'parameterized'}
+
+def main():
+    with tempfile.TemporaryDirectory() as data:
+        os.environ['CYBERLAB_DATA']=data
+        broker=Broker(os.environ.get('CYBERLAB_RUNNER_SOCKET','/run/cyberlab/runner.sock'))
+        with TestClient(uygulama(runner=broker)) as c:
+            slugs=['scope-guard','linux-permission-leak','path-shadow','service-map','http-info-leak','object-ownership',
+                   'sqlite-parameter','auth-log-hunt','c-stack-boundary','c-format-string','cpp-raii-leak','container-least-privilege','final-incident']
+            for slug in slugs:
+                response=c.post('/api/sessions',json={'challenge':slug}); assert response.status_code==200,response.text
+                lab=response.json(); assert lab['state']=='saglikli',lab
+                oid=lab['id']
+                try:
+                    def command(value):
+                        r=c.post(f'/api/sessions/{oid}/command',json={'command':value})
+                        assert r.status_code==200,r.text
+                        return r.json()
+                    output=command(PROBES.get(slug,'probe'))['output']
+                    found=re.search(r'FLG\{[a-f0-9]+\}',output); assert found,slug+': no evidence'
+                    assert c.post(f'/api/sessions/{oid}/submit',json={'flag':found.group()}).json()['sonuc']=='dogru'
+                    command('patch disabled')
+                    assert c.post(f'/api/sessions/{oid}/verify',json={}).json()['basarili'] is False
+                    command('patch '+PATCH[slug])
+                    if slug=='final-incident':
+                        command('report "SQL birleştirmesi req-42 oturumunda ilk erişimi sağladı. Log ve sorgu kanıtlandı; parametrik sorgu uygulandı, enjeksiyon reddedildi ve normal sorgu çalıştı."')
+                    result=c.post(f'/api/sessions/{oid}/verify',json={})
+                    assert result.status_code==200 and result.json()['basarili'],slug+': '+result.text
+                    assert result.json()['xp']>0
+                    print('PASS attack + wrong defense + corrected defense + cleanup:',slug,flush=True)
+                finally:
+                    c.post(f'/api/sessions/{oid}/stop',json={})
+            # 20 successive start/stop cycles, covering independent network allocation.
+            for n in range(20):
+                lab=c.post('/api/sessions',json={'challenge':'scope-guard'}).json()
+                assert lab['state']=='saglikli',lab
+                assert c.post(f'/api/sessions/{lab["id"]}/stop',json={}).status_code==200
+            print('PASS 20 consecutive lifecycle cycles',flush=True)
+        import subprocess
+        for kind in ('container','network','volume'):
+            result=subprocess.run(['docker',kind,'ls','--filter','label=com.flugel.cyberlab.managed=true','--quiet'],capture_output=True,text=True,check=True)
+            assert not result.stdout.strip(),f'Orphan {kind}: {result.stdout}'
+        print('PASS zero managed orphan containers/networks/volumes',flush=True)
+
+if __name__=='__main__': main()
