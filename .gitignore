@@ -14,3 +14,6 @@ runner/run/
 .pytest_cache/
 *.tar.gz
 *.log
+
+apps/web/test-results/
+apps/web/playwright-report/

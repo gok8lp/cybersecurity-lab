@@ -30,3 +30,14 @@ Her ders kavram, keşif, kaynak örneği, savunma, regresyon ve kontrol sorusu i
 Konsol halen eğitim komutları ve hazır savunmalarla çalışır; serbest attacker shell değildir. Yeni parser/crypto/dosya/derleme alıştırmaları doğrudan kendi geçici fixture'larını sınar. Gerçek web hesabı veya LAN hedefi kullanılmaz. 1.0'ın sentetik senaryoları bu güncellemede gerçek web servisine dönüşmüş sayılmaz.
 
 Tam ürün şartnamesindeki açık işler [DEVELOPMENT_STATUS.md](DEVELOPMENT_STATUS.md) içinde izlenir. Mevcut genişletme bütün şartnamenin tamamlandığı iddiası değildir.
+
+## 27 Ekim 2026 doğrulama kaydı
+
+- Linux'ta 95 Python testi geçti; Windows'ta 92 geçti, POSIX/derleyici gerektiren 3 test Linux'ta doğrulandı.
+- 21 gerçek Docker oturumunda kanıt, yanlış savunmanın reddi, doğru savunma ve temizleme geçti.
+- 20 ardışık başlat/uzat/sıfırla/durdur çevrimi geçti. İkinci uzatma reddedildi, eski flag yeni oturumda çalışmadı. Sonunda managed container/network/volume sayısı sıfır.
+- Üç otomatik Playwright testi: yeni ders-lab bağlantısı, yeni filtre/JWT arama/boş sonuç, 1366px ve 390px klavye/taşma/axe WCAG kontrolü geçti.
+- Kontrast ve kaydırılan kod bloklarının klavye odağı düzeltildi. CI tarayıcı testini Python + frontend build sonrasında çalıştırır.
+- Sunucu release'i /opt/flugel-cyberlab/releases/20261027T175848Z; SQLite online yedeği güncellemeden önce alınıp integrity_check ile doğrulandı. Kullanıcı XP'si kabul testlerinden etkilenmedi.
+
+Yerel tarayıcı testi: `cd apps/web && pnpm exec playwright install chromium && pnpm run test:browser`. Python PATH'te değilse CYBERLAB_PYTHON ortam değişkenini venv python yürütülebilirinin mutlak yoluna ayarlayın. Testler üretim 8317 yerine ayrı 8318 portu ve geçici veri dizini kullanır.

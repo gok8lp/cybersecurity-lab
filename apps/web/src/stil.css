@@ -53,7 +53,7 @@ a {color:inherit;}
 .brand-mark {display:grid;place-items:center;background:var(--iyi);color:#102414;width:42px;height:42px;border-radius:8px;font-size:22px;letter-spacing:-3px;}
 .eyebrow {font:10px/1.6 ui-monospace,monospace;letter-spacing:1.5px;color:var(--ikincil);margin:0 0 16px;}
 .range-nav {display:flex;width:100%;align-items:center;gap:12px;padding:14px 12px;border:1px solid transparent;border-radius:7px;background:none;color:var(--ikincil);text-align:left;font:inherit;cursor:pointer;margin-bottom:6px;min-height:48px;}
-.range-nav span:first-child {font:10px ui-monospace,monospace;color:#6b7b70;}
+.range-nav span:first-child {font:10px ui-monospace,monospace;color:#93a398;}
 .range-nav:hover {background:var(--raised);}
 .range-nav.active {background:#242e25;border-color:#3d5035;color:#dcf7c0;}
 .nav-arrow {margin-left:auto;}
