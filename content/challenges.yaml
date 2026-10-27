@@ -155,3 +155,85 @@ challenges:
   guide: read logs → read source → probe "' OR 1=1 --" → flag gönder → patch parameterized
     → report "İlk erişim, log kanıtı, kök neden, düzeltme ve regresyonu açıklayan
     en az 80 karakterlik olay raporun" → savunmayı doğrula.
+- slug: web-output-encoding
+  module: web
+  difficulty: intermediate
+  title_tr: HTML verisi mi, çalışan etiket mi?
+  type: attack_defense
+  objective: Kullanıcı metninin HTML etiketi olarak yorumlanmasını parser üzerinden
+    kanıtla; metin içeriğini koruyarak HTML çıktı kodlaması uygula.
+  score: 420
+  guide: read source → probe → kanıtı gönder → patch escape-html → savunmayı doğrula.
+  introduced: '1.1'
+- slug: path-traversal
+  module: web
+  difficulty: intermediate
+  title_tr: Dosya yolu kökten kaçıyor
+  type: attack_defense
+  objective: Geçici fixture içindeki public dizininden private dosyasına ../ ile erişimi
+    kanıtla; çözümlenmiş yolun public kökü altında kaldığını doğrula.
+  score: 420
+  guide: read source → probe → kanıtı gönder → patch confine-root → savunmayı doğrula.
+  introduced: '1.1'
+- slug: csrf-token
+  module: identity
+  difficulty: intermediate
+  title_tr: İstek hangi oturumdan geldi?
+  type: attack_defense
+  objective: Tokensız eğitim isteğinin kabulünü bul; oturuma bağlı token eşleşmesini
+    zorunlu tut ve geçerli isteği koru.
+  score: 420
+  guide: read source → probe → kanıtı gönder → patch validate-token → savunmayı doğrula.
+  introduced: '1.1'
+- slug: jwt-signature
+  module: identity
+  difficulty: intermediate
+  title_tr: İmzasız yönetici tokenı
+  type: attack_defense
+  objective: alg=none eğitim tokenının yönetici olarak kabulünü bul; HS256 algoritmasını
+    ve HMAC imzasını sunucuda sabitle.
+  score: 420
+  guide: read source → probe → kanıtı gönder → patch pin-algorithm → savunmayı doğrula.
+  introduced: '1.1'
+- slug: password-storage
+  module: identity
+  difficulty: intermediate
+  title_tr: Hızlı özetin bedeli
+  type: attack_defense
+  objective: Saltsız SHA-256 eğitim özetini küçük sözlükle eşleştir; rastgele salt
+    ve scrypt kullanarak parola doğrulamasını değiştir.
+  score: 420
+  guide: read source → probe → kanıtı gönder → patch salted-scrypt → savunmayı doğrula.
+  introduced: '1.1'
+- slug: archive-slip
+  module: web
+  difficulty: intermediate
+  title_tr: ZIP hedef dizinden taşıyor
+  type: attack_defense
+  objective: Kontrollü ZIP üyesinin ../ ile çıkarma kökü dışına yazılmasını kanıtla;
+    her üyenin çözümlenmiş hedefini denetle.
+  score: 420
+  guide: read source → probe → kanıtı gönder → patch validate-members → savunmayı
+    doğrula.
+  introduced: '1.1'
+- slug: c-integer-boundary
+  module: memory
+  difficulty: intermediate
+  title_tr: 256 bayt nasıl sıfır olur?
+  type: attack_defense
+  objective: 256 değerinin uint8_t içine daraltılınca 0 olmasını gerçek C derlemesinde
+    gözle; aralık kontrolünü dönüşümden önce yap.
+  score: 420
+  guide: read source → probe → kanıtı gönder → patch check-before-cast → savunmayı
+    doğrula.
+  introduced: '1.1'
+- slug: binary-secret
+  module: reverse
+  difficulty: intermediate
+  title_tr: Derlenen dosya sırrı saklar mı?
+  type: attack_defense
+  objective: Eğitim C programını derleyip strings ile gömülü sabiti bul; sırrı binary
+    dışına taşı ve eksik yapılandırmayı reddet.
+  score: 420
+  guide: read source → probe → kanıtı gönder → patch external-secret → savunmayı doğrula.
+  introduced: '1.1'

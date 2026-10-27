@@ -32,7 +32,7 @@ def test_izin_listesi_ve_argv():
     izin = runner.izin_listesi()
     assert "linux-permission-leak" in izin
     assert "scope-guard" in izin
-    assert len(izin) == 13
+    assert len(izin) == 21
     argv = runner.baslat_argv("linux-permission-leak", "a1b2c3d4e5f6")
     assert argv[:4] == ["docker", "compose", "-p", "cyberlab-a1b2c3d4e5f6"]
     assert all(";" not in a and "&&" not in a for a in argv)

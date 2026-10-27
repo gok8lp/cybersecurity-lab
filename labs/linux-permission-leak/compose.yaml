@@ -1,7 +1,7 @@
 services:
   target:
     build: ../shared
-    image: flugel-cyberlab/exercises:1.0
+    image: flugel-cyberlab/exercises:1.1
     user: 1000:1000
     read_only: true
     cap_drop:

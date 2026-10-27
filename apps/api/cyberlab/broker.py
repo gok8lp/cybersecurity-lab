@@ -25,6 +25,9 @@ class Broker:
     def durdur(self, slug, oid):
         return self.call('stop', slug=slug, oid=oid)
 
+    def uzat(self, slug, oid):
+        return self.call('extend', slug=slug, oid=oid)
+
     def komut(self, slug, oid, command):
         return self.call('command', slug=slug, oid=oid, command=command)
 

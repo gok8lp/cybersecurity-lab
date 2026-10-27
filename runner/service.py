@@ -130,6 +130,19 @@ def stop(job: Job):
         if ok: rows.pop(job.oid,None); save(rows)
         return {'durum':'bitti' if ok else 'hata'}
 
+
+@app.post('/extend')
+def extend(job: Job):
+    validate(job)
+    with LOCK:
+        rows=load(); row=rows.get(job.oid)
+        if not row or row['slug']!=job.slug or row['expires']<=time.time():
+            raise HTTPException(409,'Oturum sona erdi')
+        # Retry-safe: an API restart between this operation and its DB commit cannot add time twice.
+        if not row.get('extended'):
+            row['expires']+=900; row['extended']=True; save(rows)
+        return {'expires':row['expires']}
+
 def execute(job, parts):
     validate(job)
     with LOCK:

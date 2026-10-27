@@ -21,12 +21,12 @@ guides={
  'final-incident':'''read logs → read source → probe "' OR 1=1 --" → flag gönder → patch parameterized → report "İlk erişim, log kanıtı, kök neden, düzeltme ve regresyonu açıklayan en az 80 karakterlik olay raporun" → savunmayı doğrula.''',
 }
 for item in data['challenges']:
-    slug=item['slug']; item['guide']=guides[slug]
+    slug=item['slug']; item['guide']=guides.get(slug,item.get('guide','read source → probe → flag → patch → verify'))
     if slug=='service-map': item['objective']='Sağlanan lab servis haritasında debug sızıntısını bul; health işlevini koruyarak kapat.'
     if slug=='linux-permission-leak': item['objective']='Geçici yedekteki dünya-okuma iznini kanıtla; dosya modunu 600 yaparak yetki modelini düzelt.'
     folder=ROOT/'labs'/slug; folder.mkdir(exist_ok=True)
     compose={'services':{'target':{
-        'build':'../shared','image':'flugel-cyberlab/exercises:1.0','user':'1000:1000',
+        'build':'../shared','image':'flugel-cyberlab/exercises:1.1','user':'1000:1000',
         'read_only':True,'cap_drop':['ALL'],'security_opt':['no-new-privileges:true'],
         'tmpfs':['/tmp:uid=1000,gid=1000,mode=1777,size=32m,exec'],
         'environment':{'CYBERLAB_FLAG':'${CYBERLAB_FLAG:-unused}','CYBERLAB_CHALLENGE':slug},

@@ -33,6 +33,8 @@ class Lesson:
     minutes: int
     prerequisites: tuple[str, ...]
     body: str
+    challenge: str | None = None
+    introduced: str = '1.0'
 
 
 def challenge_yukle(yol: Path = ICERIK / "challenges.yaml") -> dict[str, Challenge]:
@@ -67,7 +69,7 @@ def ders_yukle(klasor: Path = ICERIK / "lessons") -> dict[str, Lesson]:
             raise ValueError(f"Yinelenen ders: {slug}")
         dersler[slug] = Lesson(slug=slug, module=on["module"], title=on["title"], type=on["type"],
                                minutes=int(on.get("minutes", 10)), prerequisites=tuple(on.get("prerequisites", [])),
-                               body=govde)
+                               body=govde,challenge=on.get('challenge'),introduced=str(on.get('introduced','1.0')))
     dongu_denetle(dersler)
     return dersler
 

@@ -13,9 +13,10 @@ from runner import service
 
 ROOT=Path(__file__).resolve().parents[1]
 class Runner:
-    def __init__(self): self.flags={}; self.fixed=False; self.stopped=[]
+    def __init__(self): self.flags={}; self.fixed=False; self.stopped=[]; self.expiry={}
     def kapasite(self): return {'uygun':True,'neden':None}
-    def baslat(self,slug,oid,flag): self.flags[oid]=flag; return {'durum':'saglikli'}
+    def baslat(self,slug,oid,flag): self.flags[oid]=flag; self.expiry[oid]=simdi().timestamp()+2700; return {'durum':'saglikli'}
+    def uzat(self,slug,oid): self.expiry[oid]+=900; return {'expires':self.expiry[oid]}
     def durdur(self,slug,oid): self.stopped.append(oid); return {'durum':'bitti'}
     def komut(self,slug,oid,command): return {'output':'bounded console','exit_code':0}
     def dogrula(self,slug,oid): return {'basarili':self.fixed,'output':'regression'}
@@ -79,8 +80,8 @@ def test_limits_and_boundary(client):
     assert c.post('/api/puzzles/b64-coz/answer',json={'cevap':'x'*3000}).status_code==422
 
 def test_content_complete():
-    assert len(ders_yukle())>=12
-    assert len(challenge_yukle())==13
+    assert len(ders_yukle())>=20
+    assert len(challenge_yukle())==21
     assert all(c.raw['guide'] for c in challenge_yukle().values())
 
 @pytest.mark.parametrize('command',['sh','docker ps','; id','read /etc/passwd','curl https://example.org'])
@@ -127,3 +128,68 @@ def test_exercise_attack_wrong_patch_and_defense(tmp_path,slug,probe,mode):
     cmd('patch','disabled'); assert cmd('verify').returncode==1
     cmd('patch',mode); assert cmd('verify').returncode==0
     assert cmd('read','/etc/passwd').returncode==1
+
+
+def test_session_reset_rotates_identity_and_flag(client):
+    c,r,_=client; oid=start(c); old_flag=r.flags[oid]
+    c.post(f'/api/sessions/{oid}/submit',json={'flag':old_flag})
+    response=c.post(f'/api/sessions/{oid}/reset',json={})
+    assert response.status_code==200,response.text
+    new=response.json(); assert new['id']!=oid and new['previous_id']==oid
+    assert oid in r.stopped and new['state']=='saglikli'
+    assert c.post(f'/api/sessions/{new["id"]}/submit',json={'flag':old_flag}).json()['sonuc']!='dogru'
+    assert c.post(f'/api/sessions/{oid}/command',json={'command':'help'}).status_code==409
+    assert c.get('/api/progress').json()['xp']==0
+
+
+def test_extend_once_and_reject_expired_session(client):
+    c,r,app=client; oid=start(c); original=r.expiry[oid]
+    result=c.post(f'/api/sessions/{oid}/extend',json={})
+    assert result.status_code==200 and result.json()['extended'] is True
+    assert r.expiry[oid]==original+900
+    assert c.post(f'/api/sessions/{oid}/extend',json={}).status_code==409
+    with Session(app.state.engine) as s:
+        lab=s.get(LabSession,oid);lab.expires_at=simdi()-timedelta(seconds=1);s.add(lab);s.commit()
+    assert c.post(f'/api/sessions/{oid}/extend',json={}).status_code==409
+
+
+def test_broker_extension_is_retry_safe(monkeypatch,tmp_path):
+    monkeypatch.setattr(service,'ROOT',tmp_path)
+    future=simdi().timestamp()+2700
+    service.save({'a'*12:{'slug':'linux-permission-leak','expires':future}})
+    with TestClient(service.app) as c:
+        payload={'slug':'linux-permission-leak','oid':'a'*12}
+        first=c.post('/extend',json=payload).json()
+        second=c.post('/extend',json=payload).json()
+        assert first['expires']==second['expires']==future+900
+
+
+@pytest.mark.parametrize('slug',[
+    'web-output-encoding','path-traversal','csrf-token','jwt-signature',
+    'password-storage','archive-slip','c-integer-boundary','binary-secret'])
+def test_new_exercise_evidence_wrong_patch_and_regressions(tmp_path,slug):
+    import os,shutil
+    if slug in {'c-integer-boundary','binary-secret'} and not (shutil.which('gcc') and shutil.which('strings')):
+        pytest.skip('C compilation and binary inspection run on Linux CI/deployment host')
+    from labs.shared.advanced import MODES
+    env={**os.environ,'LAB_STATE':str(tmp_path),'CYBERLAB_CHALLENGE':slug,'CYBERLAB_FLAG':'FLG{abc}'}
+    def cmd(*args):
+        return subprocess.run([sys.executable,'-X','utf8',str(ROOT/'labs/shared/exercise.py'),*args],env=env,text=True,encoding='utf-8',capture_output=True)
+    assert cmd('verify').returncode==1
+    result=cmd('probe');assert result.returncode==0 and 'FLG{abc}' in result.stdout,result.stdout+result.stderr
+    cmd('patch','disabled');assert cmd('verify').returncode==1
+    cmd('patch',MODES[slug]);result=cmd('verify')
+    assert result.returncode==0,result.stdout+result.stderr
+    import json
+    assert all(json.loads(result.stdout).values())
+    assert 'FLG{abc}' not in cmd('probe').stdout
+
+
+def test_curriculum_links_and_new_modules(client):
+    c,_,_=client
+    lessons=c.get('/api/lessons').json(); challenges=c.get('/api/challenges').json()
+    ids={item['slug'] for item in challenges}
+    new=[item for item in lessons if item['introduced']=='1.1']
+    assert len(new)==8 and all(item['challenge'] in ids for item in new)
+    assert len([item for item in challenges if item['introduced']=='1.1'])==8
+    assert all(len(c.get('/api/lessons/'+item['slug']).json()['body'])>1000 for item in new)

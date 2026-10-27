@@ -8,6 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import advanced
 
 SLUG=os.getenv('CYBERLAB_CHALLENGE','linux-permission-leak')
 STATE=Path(os.getenv('LAB_STATE','/tmp/cyberlab'))
@@ -29,6 +30,7 @@ CHOICES={
  'container-least-privilege':('least-privilege','salt okunur ve yetkisiz hedef seç'),
  'final-incident':('parameterized','log kanıtından parametrik sorgu savunmasına geç'),
 }
+CHOICES.update({slug:(mode,'kaynağı incele, güvenlik sınırını düzelt ve normal işlevi koru') for slug,mode in advanced.MODES.items()})
 CODES={
  'c-stack-boundary':('#include <string.h>\nint main(void){char b[8]; strcpy(b,"0123456789ABCDEF"); return b[0]==0;}','''#include <string.h>
 int main(void){char b[8]; const char *s="0123456789ABCDEF"; if(strlen(s)>=sizeof b) return 0; memcpy(b,s,strlen(s)+1); return 0;}'''),
@@ -72,7 +74,9 @@ def code_test(safe):
 def probe(args,p):
     safe=patched(p); evidence=False; output=''
     target=args[0] if args else ''
-    if SLUG=='linux-permission-leak':
+    if SLUG in advanced.MODES:
+        evidence,output=advanced.probe(SLUG,safe,args,STATE)
+    elif SLUG=='linux-permission-leak':
         denied=(STATE/'backup.txt').stat().st_mode & 0o004 == 0
         evidence=not denied; output='ogrenci: erişim reddedildi' if denied else (STATE/'backup.txt').read_text()
     elif SLUG in {'sqlite-parameter','final-incident'}:
@@ -105,6 +109,9 @@ def probe(args,p):
 
 def verify(p):
     checks={'kanit_toplandi':p['evidence'],'dogru_savunma':patched(p)}
+    if SLUG in advanced.MODES:
+        checks.update(advanced.verify(SLUG,patched(p),STATE))
+        print(json.dumps(checks,ensure_ascii=False,indent=2)); return 0 if all(checks.values()) else 1
     if SLUG=='linux-permission-leak': checks['yetkisiz_okuma_engelli']=(STATE/'backup.txt').stat().st_mode & 0o077 == 0
     if SLUG in {'sqlite-parameter','final-incident'}:
         checks['enjeksiyon_engelli']=not sql_probe("' OR 1=1 --",patched(p))
@@ -125,6 +132,8 @@ def main(args):
     if cmd=='read':
         name=rest[0] if rest else ''
         if name=='source':
+            if SLUG in advanced.MODES:
+                print(advanced.source(SLUG,patched(p))); return 0
             print(CODES[SLUG][1 if patched(p) else 0] if SLUG in CODES else {
                 'sqlite-parameter':"SELECT name FROM users WHERE name='"+'<input>'+"' AND password='wrong'",
                 'final-incident':"query = \"SELECT name FROM users WHERE name='\" + input + \"' AND password='wrong'\"",

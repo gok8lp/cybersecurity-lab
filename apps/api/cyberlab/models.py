@@ -62,3 +62,8 @@ class Audit(SQLModel, table=True):
     subject: str
     result: str
     created_at: datetime = Field(default_factory=simdi)
+
+
+class SessionDetail(SQLModel, table=True):
+    session_id: str = Field(foreign_key='labsession.id', primary_key=True)
+    extended: bool = False

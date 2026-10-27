@@ -8,12 +8,16 @@ from fastapi.testclient import TestClient
 from cyberlab.service import uygulama
 from cyberlab.broker import Broker
 from runner import runner
+from labs.shared.advanced import MODES
+from cyberlab.content import challenge_yukle
 
 PROBES={'scope-guard':'probe 192.0.2.10','object-ownership':'probe 2','sqlite-parameter':'''probe "' OR 1=1 --"''',
         'auth-log-hunt':'probe req-42','final-incident':'''probe "' OR 1=1 --"'''}
 PATCH={'scope-guard':'allowlist','linux-permission-leak':'600','path-shadow':'absolute-path','service-map':'close-debug',
        'http-info-leak':'no-debug','object-ownership':'owner-check','sqlite-parameter':'parameterized','auth-log-hunt':'correlation',
        'c-stack-boundary':'bounded','c-format-string':'fixed-format','cpp-raii-leak':'raii','container-least-privilege':'least-privilege','final-incident':'parameterized'}
+
+PATCH.update(MODES)
 
 def main():
     with tempfile.TemporaryDirectory() as data:
@@ -32,8 +36,7 @@ def main():
                     # Honor production capacity protection while other host workloads fluctuate.
                     print('WAIT capacity:',lab.get('neden'),flush=True)
                     time.sleep(10)
-            slugs=['scope-guard','linux-permission-leak','path-shadow','service-map','http-info-leak','object-ownership',
-                   'sqlite-parameter','auth-log-hunt','c-stack-boundary','c-format-string','cpp-raii-leak','container-least-privilege','final-incident']
+            slugs=list(challenge_yukle())
             for slug in slugs:
                 lab=start_ready(slug)
                 oid=lab['id']
@@ -56,10 +59,25 @@ def main():
                     print('PASS attack + wrong defense + corrected defense + cleanup:',slug,flush=True)
                 finally:
                     c.post(f'/api/sessions/{oid}/stop',json={})
-            # 20 successive start/stop cycles, covering independent network allocation.
+            # 20 start/extend/reset/stop cycles with fresh identities and independent networks.
             for n in range(20):
-                lab=start_ready('scope-guard')
-                assert c.post(f'/api/sessions/{lab["id"]}/stop',json={}).status_code==200
+                lab=start_ready('scope-guard'); oid=lab['id']
+                try:
+                    output=c.post(f'/api/sessions/{oid}/command',json={'command':'probe 192.0.2.10'}).json()['output']
+                    flag=re.search(r'FLG\{[a-f0-9]+\}',output).group()
+                    extended=c.post(f'/api/sessions/{oid}/extend',json={})
+                    assert extended.status_code==200 and extended.json()['extended'],extended.text
+                    assert c.post(f'/api/sessions/{oid}/extend',json={}).status_code==409
+                    reset=c.post(f'/api/sessions/{oid}/reset',json={})
+                    assert reset.status_code==200,reset.text
+                    lab=reset.json()
+                    if lab['state']=='kuyrukta': lab=start_ready('scope-guard')
+                    assert lab['state']=='saglikli' and lab['id']!=oid,lab
+                    assert c.post(f'/api/sessions/{oid}/command',json={'command':'help'}).status_code==409
+                    oid=lab['id']
+                    assert c.post(f'/api/sessions/{oid}/submit',json={'flag':flag}).json()['sonuc']!='dogru'
+                finally:
+                    assert c.post(f'/api/sessions/{oid}/stop',json={}).status_code==200
                 if (n+1)%5==0: print(f'PASS lifecycle cycles: {n+1}/20',flush=True)
             print('PASS 20 consecutive lifecycle cycles',flush=True)
         import subprocess

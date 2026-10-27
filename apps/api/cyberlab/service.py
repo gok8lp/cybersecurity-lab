@@ -4,7 +4,7 @@ import secrets
 import threading
 import time
 from collections import defaultdict, deque
-from datetime import timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import event
 from sqlmodel import Session, SQLModel, create_engine, select
 from . import content, flags, puzzles
-from .models import Activity, Attempt, Audit, Hint, LabSession, Progress, User, simdi
+from .models import Activity, Attempt, Audit, Hint, LabSession, Progress, SessionDetail, User, simdi
 
 WRITE = threading.RLock()
 class Cevap(BaseModel):
@@ -49,7 +49,7 @@ def uygulama(db_url=None, runner=None):
         if not s.get(User, 1):
             s.add(User(id=1)); s.commit()
     challenges, lessons, ps = content.challenge_yukle(), content.ders_yukle(), puzzles.yukle()
-    app = FastAPI(title='FLUGEL Cyber Range', version='1.0.0', docs_url='/api/docs', redoc_url=None)
+    app = FastAPI(title='FLUGEL Cyber Range', version='1.1.0', docs_url='/api/docs', redoc_url=None)
     app.state.engine = engine
     limits = defaultdict(deque)
     hosts = set(os.getenv('CYBERLAB_HOSTS', '127.0.0.1,localhost,testserver').split(','))
@@ -100,9 +100,10 @@ def uygulama(db_url=None, runner=None):
         if active and (aware(lab.expires_at) <= simdi() or lab.state not in {'saglikli', 'saldiri-tamam'}):
             raise HTTPException(409, 'Oturum etkin değil; yeni lab başlat')
         return lab
-    def public(lab):
+    def public(lab, s):
         state = 'suresi-doldu' if lab.state in {'saglikli', 'saldiri-tamam'} and aware(lab.expires_at) <= simdi() else lab.state
-        return {'id': lab.id, 'challenge': lab.challenge, 'state': state, 'expires_at': aware(lab.expires_at).isoformat()}
+        detail=s.get(SessionDetail,lab.id)
+        return {'id': lab.id, 'challenge': lab.challenge, 'state': state, 'expires_at': aware(lab.expires_at).isoformat(), 'extended':bool(detail and detail.extended)}
     @app.get('/api/health')
     def health(): return {'durum': 'ok'}
     @app.get('/api/health/capacity')
@@ -110,10 +111,10 @@ def uygulama(db_url=None, runner=None):
     @app.get('/api/challenges')
     def challenge_list():
         return [{'slug': c.slug, 'module': c.module, 'difficulty': c.difficulty, 'title': c.title_tr, 'type': c.type,
-                 'objective': c.objective, 'score': c.score, 'guide': c.raw.get('guide', ''), 'prerequisites': c.raw.get('prerequisites', [])} for c in challenges.values()]
+                 'objective': c.objective, 'score': c.score, 'guide': c.raw.get('guide', ''), 'prerequisites': c.raw.get('prerequisites', []), 'introduced':str(c.raw.get('introduced','1.0'))} for c in challenges.values()]
     @app.get('/api/lessons')
     def lesson_list():
-        return [{'slug': d.slug, 'module': d.module, 'title': d.title, 'type': d.type, 'minutes': d.minutes, 'prerequisites': list(d.prerequisites)} for d in lessons.values()]
+        return [{'slug': d.slug, 'module': d.module, 'title': d.title, 'type': d.type, 'minutes': d.minutes, 'prerequisites': list(d.prerequisites), 'challenge':d.challenge, 'introduced':d.introduced} for d in lessons.values()]
     @app.get('/api/lessons/{slug}')
     def lesson(slug: str):
         d = lessons.get(slug)
@@ -155,9 +156,9 @@ def uygulama(db_url=None, runner=None):
         return {'dogru': correct, 'aciklama': p.aciklama if correct else None, 'xp': xp}
     @app.get('/api/sessions')
     def sessions(s: Session = Depends(db)):
-        return [public(x) for x in s.exec(select(LabSession).where(LabSession.user_id == 1).order_by(LabSession.started_at.desc()).limit(30)).all()]
+        return [public(x,s) for x in s.exec(select(LabSession).where(LabSession.user_id == 1).order_by(LabSession.started_at.desc()).limit(30)).all()]
     @app.get('/api/sessions/{oid}')
-    def session_detail(oid: str, s: Session = Depends(db)): return public(lab_get(s, oid))
+    def session_detail(oid: str, s: Session = Depends(db)): return public(lab_get(s, oid),s)
     @app.post('/api/sessions')
     def start(req: OturumIstek, s: Session = Depends(db)):
         c = challenges.get(req.challenge)
@@ -172,7 +173,29 @@ def uygulama(db_url=None, runner=None):
             try: result = runner.baslat(req.challenge, oid, flag) if runner else {'durum':'runner-yok'}
             except RuntimeError: raise HTTPException(503, 'Lab servisine erişilemiyor')
             lab.state = result.get('durum','hata'); s.add(lab); audit(s,'start',oid,lab.state); s.commit()
-            return {**public(lab), 'neden':result.get('neden')}
+            return {**public(lab,s), 'neden':result.get('neden')}
+    @app.post('/api/sessions/{oid}/extend')
+    def extend(oid: str, s: Session = Depends(db)):
+        with WRITE:
+            lab=lab_get(s,oid,True)
+            detail=s.get(SessionDetail,oid) or SessionDetail(session_id=oid)
+            if detail.extended: raise HTTPException(409,'Bu oturumun ek süresi kullanıldı')
+            if not runner: raise HTTPException(503,'Runner yok')
+            try: result=runner.uzat(lab.challenge,oid)
+            except RuntimeError: raise HTTPException(503,'Süre uzatılamadı')
+            lab.expires_at=datetime.fromtimestamp(result['expires'],timezone.utc)
+            detail.extended=True; s.add(detail); s.add(lab); audit(s,'extend',oid,'15-dakika'); s.commit()
+            return public(lab,s)
+    @app.post('/api/sessions/{oid}/reset')
+    def reset(oid: str, s: Session = Depends(db)):
+        with WRITE:
+            lab=lab_get(s,oid)
+            if not runner: raise HTTPException(503,'Runner yok')
+            try: result=runner.durdur(lab.challenge,oid)
+            except RuntimeError: raise HTTPException(503,'Eski oturum temizlenemedi')
+            if result.get('durum')!='bitti': raise HTTPException(503,'Eski oturum temizlenemedi')
+            lab.state='bitti'; s.add(lab); audit(s,'reset',oid,'temizlendi'); s.commit()
+            return {**start(OturumIstek(challenge=lab.challenge),s),'previous_id':oid}
     @app.post('/api/sessions/{oid}/stop')
     def stop(oid: str, s: Session = Depends(db)):
         with WRITE:
@@ -181,7 +204,7 @@ def uygulama(db_url=None, runner=None):
             except RuntimeError: raise HTTPException(503,'Lab durdurulamadı')
             if result.get('durum')!='bitti': raise HTTPException(503,'Lab durdurulamadı')
             lab.state='bitti'; s.add(lab); audit(s,'stop',oid,'bitti'); s.commit()
-        return public(lab)
+        return public(lab,s)
     @app.post('/api/sessions/{oid}/command')
     def command(oid: str, req: Komut, s: Session = Depends(db)):
         lab=lab_get(s,oid,True)

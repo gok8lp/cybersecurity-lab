@@ -25,7 +25,7 @@ sudo install -d -o "$owner" -g cyberlab -m 770 /var/lib/cyberlab-runner
 sudo install -d -o "$owner" -g cyberlab -m 770 /run/cyberlab
 cd "$release"
 # Build the shared target before switching the active version. It publishes no ports.
-docker build --tag flugel-cyberlab/exercises:1.0 labs/shared
+docker build --tag flugel-cyberlab/exercises:1.1 labs/shared
 sudo ln -sfn "$release" "$root/current"
 cat <<EOF | sudo tee /etc/tmpfiles.d/cyberlab.conf >/dev/null
 d /run/cyberlab 0770 $owner cyberlab -
