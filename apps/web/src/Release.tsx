@@ -40,6 +40,7 @@ export function Uygulama(){
   useEffect(()=>{refresh().catch(e=>setError(e.message)).finally(()=>setLoading(false));const timer=setInterval(()=>refresh().catch(()=>{}),15000);return()=>clearInterval(timer);},[]);
   function navigate(value:string){setTab(value);location.hash=value;}
   useEffect(()=>{const change=()=>setTab(location.hash.slice(1)||'ana');addEventListener('hashchange',change);return()=>removeEventListener('hashchange',change);},[]);
+  const visibleChallenges=challenges.filter(c=>(labFilter==='hepsi'||(labFilter==='yeni'?c.introduced==='1.1':c.module===labFilter))&&(c.title+' '+c.objective+' '+c.slug).toLocaleLowerCase('tr').includes(labSearch.toLocaleLowerCase('tr')));
   const done=progress.tamamlanan;
   function openLab(slug:string){setTargetLab(slug);setLabFilter('hepsi');setLabSearch('');navigate('lab');}
   function openLesson(slug:string){localStorage.setItem('cyberlab-lesson',slug);navigate('ogretici');}
@@ -69,8 +70,9 @@ export function Uygulama(){
       {tab==='bulmaca'&&<Puzzles list={puzzles} done={done} busy={!!busy} action={action}/>}
       {tab==='lab'&&<><div className="section-heading"><div><p className="eyebrow">UYGULAMALI ÖĞRENME</p><h1>Laboratuvar</h1><p className="soluk">Kanıt → flag → savunma → doğrulama. Oturumlar 45 dakika sonra kapanır.</p></div><span className="rozet">{labs.filter(x=>['saglikli','saldiri-tamam'].includes(x.state)).length} / 2 etkin</span></div>
         {!capacity?.uygun&&<p className="uyari-metin">{reasons[capacity?.neden||'runner-yok']||'Kapasite kontrol ediliyor'}</p>}
-        <div className="catalog-controls"><label>Lab ara<input className="girdi" value={labSearch} onChange={e=>setLabSearch(e.target.value)} placeholder="JWT, dosya, C…"/></label><label>Koleksiyon<select value={labFilter} onChange={e=>setLabFilter(e.target.value)}><option value="hepsi">Tüm lablar ({challenges.length})</option><option value="yeni">Yeni eklenenler</option>{[...new Set(challenges.map(c=>c.module))].map(m=><option key={m} value={m}>{modules[m]||m}</option>)}</select></label></div>
-        <div className="lab-grid">{challenges.filter(c=>(labFilter==='hepsi'||(labFilter==='yeni'?c.introduced==='1.1':c.module===labFilter))&&(c.title+' '+c.objective).toLocaleLowerCase('tr').includes(labSearch.toLocaleLowerCase('tr'))).map(c=><LabCard key={c.slug} c={c} selected={c.slug===targetLab} lab={labs.find(l=>l.challenge===c.slug)} done={done} busy={!!busy} action={action}/>)}</div>
+        <div className="catalog-controls"><label>Lab ara<input className="girdi" value={labSearch} onChange={e=>setLabSearch(e.target.value)} placeholder="JWT, dosya, C…"/></label><label>Koleksiyon<select aria-label="Lab koleksiyonu" value={labFilter} onChange={e=>setLabFilter(e.target.value)}><option value="hepsi">Tüm lablar ({challenges.length})</option><option value="yeni">Yeni eklenenler</option>{[...new Set(challenges.map(c=>c.module))].map(m=><option key={m} value={m}>{modules[m]||m}</option>)}</select></label></div>
+        {visibleChallenges.length===0&&<section className="kutu"><p role="status">Bu aramaya uygun lab bulunamadı.</p><button className="dugme" onClick={()=>{setLabSearch('');setLabFilter('hepsi');}}>Tüm labları göster</button></section>}
+        <div className="lab-grid">{visibleChallenges.map(c=><LabCard key={c.slug} c={c} selected={c.slug===targetLab} lab={labs.find(l=>l.challenge===c.slug)} done={done} busy={!!busy} action={action}/>)}</div>
       </>}
       </>}
     </main><footer>FLUGEL CYBER RANGE <span>İzole alıştırmalar. Gerçek sistemler hedef değildir.</span></footer></div>
