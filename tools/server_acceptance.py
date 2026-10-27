@@ -2,6 +2,7 @@
 import os
 import re
 import tempfile
+import time
 from pathlib import Path
 from fastapi.testclient import TestClient
 from cyberlab.service import uygulama
@@ -19,11 +20,22 @@ def main():
         os.environ['CYBERLAB_DATA']=data
         broker=Broker(os.environ.get('CYBERLAB_RUNNER_SOCKET','/run/cyberlab/runner.sock'))
         with TestClient(uygulama(runner=broker)) as c:
+            def start_ready(slug):
+                deadline=time.monotonic()+180
+                while True:
+                    response=c.post('/api/sessions',json={'challenge':slug})
+                    assert response.status_code==200,response.text
+                    lab=response.json()
+                    if lab['state']=='saglikli': return lab
+                    if lab['state']!='kuyrukta' or time.monotonic()>=deadline:
+                        raise AssertionError(lab)
+                    # Honor production capacity protection while other host workloads fluctuate.
+                    print('WAIT capacity:',lab.get('neden'),flush=True)
+                    time.sleep(10)
             slugs=['scope-guard','linux-permission-leak','path-shadow','service-map','http-info-leak','object-ownership',
                    'sqlite-parameter','auth-log-hunt','c-stack-boundary','c-format-string','cpp-raii-leak','container-least-privilege','final-incident']
             for slug in slugs:
-                response=c.post('/api/sessions',json={'challenge':slug}); assert response.status_code==200,response.text
-                lab=response.json(); assert lab['state']=='saglikli',lab
+                lab=start_ready(slug)
                 oid=lab['id']
                 try:
                     def command(value):
@@ -46,9 +58,9 @@ def main():
                     c.post(f'/api/sessions/{oid}/stop',json={})
             # 20 successive start/stop cycles, covering independent network allocation.
             for n in range(20):
-                lab=c.post('/api/sessions',json={'challenge':'scope-guard'}).json()
-                assert lab['state']=='saglikli',lab
+                lab=start_ready('scope-guard')
                 assert c.post(f'/api/sessions/{lab["id"]}/stop',json={}).status_code==200
+                if (n+1)%5==0: print(f'PASS lifecycle cycles: {n+1}/20',flush=True)
             print('PASS 20 consecutive lifecycle cycles',flush=True)
         import subprocess
         for kind in ('container','network','volume'):
