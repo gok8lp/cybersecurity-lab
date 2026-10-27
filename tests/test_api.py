@@ -50,7 +50,7 @@ def test_flag_yalniz_kendi_oturumunda(tmp_path, monkeypatch):
 
 def test_bulmaca_cevaplari_ve_xp(tmp_path, monkeypatch):
     c, _ = istemci(tmp_path, monkeypatch)
-    kaynak = yaml.safe_load((KOK / "tests" / "bulmaca_kaynak.yaml").read_text())
+    kaynak = yaml.safe_load((KOK / "tests" / "bulmaca_kaynak.yaml").read_text(encoding="utf-8"))
     for b in kaynak:
         yanit = c.post(f"/api/puzzles/{b['slug']}/answer", json={"cevap": str(b["cevap"])}).json()
         assert yanit["dogru"], b["slug"]
